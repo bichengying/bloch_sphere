@@ -259,23 +259,27 @@ def draw_bloch_sphere(d, inner_proj=euclid3d.identity(3), label='', axis=None,
     xycolors = ['#56e', '#239', '#56e', '#56e']
     yzcolors = ['#e1e144', '#909022', '#e1e144', '#e1e144']
     zxcolors = ['#9e2', '#6a1', '#9e2', '#9e2']
-
+    
+    # Outer bands
     draw_band(proj_xy, trans@xy, 1, 0.925, z_mul=10, color=xycolors)
     draw_band(proj_yz, trans@yz, 1, 0.925, z_mul=10, color=yzcolors)
     draw_band(proj_zx, trans@zx, 1, 0.925, z_mul=10, color=zxcolors)
 
-    # Inner
     g = draw.Group(opacity=inner_opacity)
     z_center = trans.project_point((0,0,0))[2]
     d.append(g, z=z_center)
     inner_xy = proj@inner_proj@xy
-    # Darker colors: #34b, #a8a833, #7b2
-    draw_band(proj@inner_proj@xy, trans@inner_proj@xy, 0.8, 0.7, color=xycolors,
-              d=g)
-    draw_band(proj@inner_proj@yz, trans@inner_proj@yz, 0.8, 0.7,
-              color=yzcolors, divs=4, d=g)
-    draw_band(proj@inner_proj@zx, trans@inner_proj@zx, 0.8, 0.7, color=zxcolors,
-              divs=8//2, d=g)
+
+    if False:
+        # Inner bands
+        # Darker colors: #34b, #a8a833, #7b2
+        draw_band(proj@inner_proj@xy, trans@inner_proj@xy, 0.8, 0.7, color=xycolors,
+                d=g)
+        draw_band(proj@inner_proj@yz, trans@inner_proj@yz, 0.8, 0.7,
+                color=yzcolors, divs=4, d=g)
+        draw_band(proj@inner_proj@zx, trans@inner_proj@zx, 0.8, 0.7, color=zxcolors,
+                divs=8//2, d=g)
+
     elevation_lines = False
     if elevation_lines:
         for elevation in (*np.linspace(0, np.pi/2, 4, True)[1:-1],
@@ -286,17 +290,25 @@ def draw_bloch_sphere(d, inner_proj=euclid3d.identity(3), label='', axis=None,
                       trans@inner_proj@xy @ euclid3d.translation((0, 0, y)),
                       r_outer=r-0.01, r_inner=r+0.01, color='#bbb', opacity=1,
                       d=g)
+    
+    # Inner arrows:
     arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
-    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='black',
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#9e2',
                             close=True))
-    g.append(draw.Line(*inner_xy.p2(-0.65, 0, 0), *inner_xy.p2(0.6, 0, 0),
-                       stroke='black', stroke_width=0.015, marker_end=arrow),
+    g.append(draw.Line(*inner_xy.p2(-0.1, 0, 0), *inner_xy.p2(0.6, 0, 0),
+                       stroke='#9e2', stroke_width=0.035, marker_end=arrow),
              z=z_center)
-    g.append(draw.Line(*inner_xy.p2(0, -0.65, 0), *inner_xy.p2(0, 0.6, 0),
-                       stroke='black', stroke_width=0.015, marker_end=arrow),
+    arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#e1e144',
+                            close=True))
+    g.append(draw.Line(*inner_xy.p2(0, -0.1, 0), *inner_xy.p2(0, 0.6, 0),
+                       stroke='#e1e144', stroke_width=0.035, marker_end=arrow),
              z=z_center)
-    g.append(draw.Line(*inner_xy.p2(0, 0, -0.65), *inner_xy.p2(0, 0, 0.6),
-                       stroke='black', stroke_width=0.015, marker_end=arrow),
+    arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#56e',
+                            close=True))
+    g.append(draw.Line(*inner_xy.p2(0, 0, -0.1), *inner_xy.p2(0, 0, 0.6),
+                       stroke='#56e', stroke_width=0.035, marker_end=arrow),
              z=z_center)
     for pt, (x_off, y_off), elem in inner_labels:
         x, y = (proj@inner_proj).p2(*pt)
@@ -304,23 +316,29 @@ def draw_bloch_sphere(d, inner_proj=euclid3d.identity(3), label='', axis=None,
 
     # Outer arrows and text
     arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
-    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='black',
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#9e2',
                             close=True))
     d.append(draw.Line(*proj_xy.p2(1, 0, 0), *proj_xy.p2(1.2, 0, 0),
-                       stroke='black', stroke_width=0.02, marker_end=arrow),
+                       stroke='#9e2', stroke_width=0.03, marker_end=arrow),
                        z=100)
+    arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#e1e144',
+                            close=True))
     d.append(draw.Line(*proj_xy.p2(0, 1, 0), *proj_xy.p2(0, 1.2, 0),
-                       stroke='black', stroke_width=0.02, marker_end=arrow),
+                       stroke='#e1e144', stroke_width=0.03, marker_end=arrow),
                        z=100)
+    arrow = draw.Marker(-0.1, -0.5, 0.9, 0.5, scale=4, orient='auto')
+    arrow.append(draw.Lines(-0.1, -0.5, -0.1, 0.5, 0.9, 0, fill='#56e',
+                            close=True))
     d.append(draw.Line(*proj_xy.p2(0, 0, 1), *proj_xy.p2(0, 0, 1.2),
-                       stroke='black', stroke_width=0.02, marker_end=arrow),
+                       stroke='#56e', stroke_width=0.03, marker_end=arrow),
                        z=100)
     d.append(draw.Line(*proj_xy.p2(-1, 0, 0), *proj_xy.p2(-1.2, 0, 0),
-                       stroke='black', stroke_width=0.02))
+                       stroke='#9e2', stroke_width=0.03))
     d.append(draw.Line(*proj_xy.p2(0, -1, 0), *proj_xy.p2(0, -1.2, 0),
-                       stroke='black', stroke_width=0.02))
+                       stroke='#e1e144', stroke_width=0.03))
     d.append(draw.Line(*proj_xy.p2(0, 0, -1), *proj_xy.p2(0, 0, -1.2),
-                       stroke='black', stroke_width=0.02))
+                       stroke='#56e', stroke_width=0.03))
     d.append(draw.Text(['X'], 0.2, *proj_xy.p2(1.7, 0, 0), center=True,
                        fill='black'), z=100)
     d.append(draw.Text(['Y'], 0.2, *proj_xy.p2(0, 1.35, 0), center=True,
